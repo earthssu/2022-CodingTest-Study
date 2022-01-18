@@ -6,12 +6,12 @@
 프로그래머스 플랫폼을 통해 매주 정해진 문제들을 풀이합니다! 
 
 <h4>
-    <a href="https://www.notion.so/beomjinseo/178f9841db414ba9ac19e9097d38094c">
+    <a href="https://beomjinseo.notion.site/178f9841db414ba9ac19e9097d38094c">
         이번 주에 풀어야할 문제
     </a>
 </h4>
 <h4>
-    <a href="https://www.notion.so/beomjinseo/1934637484144914aca80d1f0598a786"> 
+    <a href="https://beomjinseo.notion.site/1934637484144914aca80d1f0598a786"> 
         문제 추천하기
     </a>
 </h4>
