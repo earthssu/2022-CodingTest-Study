@@ -7,12 +7,12 @@
 
 <h4>
     <a href="https://beomjinseo.notion.site/178f9841db414ba9ac19e9097d38094c">
-        이번 주에 풀어야할 문제
+        금주 문제풀이 👍
     </a>
 </h4>
 <h4>
     <a href="https://beomjinseo.notion.site/1934637484144914aca80d1f0598a786"> 
-        문제 추천하기
+        이 문제 풀고 싶어요! 🙋 (문제 추천하기)
     </a>
 </h4>
 
