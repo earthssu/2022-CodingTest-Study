@@ -39,8 +39,12 @@
 
 문제를 풀고 커밋할 시에는 다음과 같은 형식으로 하는 것을 지향합니다.
 ```
-git commit -m "code {이름} {문제 타이틀}"
-git commit -m "code 범진 순위검색"
+git commit -m "{이름} {문제출처/문제난이도/사용된 알고리즘}"
+git commit -m "beomjin Kakao/Lv3/BFS"
+```
+만약 {문제출처/문제난이도/사용된 알고리즘} 에서 특정 칸의 값이 invalid(Nan) 하다면, "-"를 입력해주세요. 
+```
+git commit -m "beomjin Kakao/-/BinarySort"
 ```
 
 ###  `Pull Request Convention`🙆
