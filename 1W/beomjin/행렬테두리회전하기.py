@@ -1,50 +1,41 @@
-def solution(rows, columns, queries):
-    """
-        1. arr 생성 
-        (no need) 2. 쿼리 기반으로 인덱스 체크
-        3. 회전 def lotate(arr, qry)
-        4. (매 회전마다) 회전한 숫자 중 최소값 리턴 def get_min(arr, qry)
-    """
-    #1
-    arr = [[i*columns +j+1 for j in range(columns)] for i in range(rows)]
-    
-    #2
-    def rotate(arr, qry): 
-        x1, y1, x2, y2 = qry 
-        width = x2-x1 
-        height = y1-y2
-        # 모두 붙어 있는 경우 
-        if width ==1 and height == 1 : 
-            clock_wise_ar = [arr[x1-1][y1-1], arr[x2-1][y1-2], arr[x2-1][y2-1], arr[x1-1][y2-1]] 
-            arr[x1-1][y1-1] = clock_wise_ar[3]
-            arr[x2-1][y1-1] = clock_wise_ar[0]
-            arr[x2-1][y2-1] = clock_wise_ar[1]
-            arr[x1-1][y2-1] = clock_wise_ar[2]
-        elif width == 1 and height != 1: # 가로만 붙어 있는 경우 
-            each_edge  = [arr[x1-1][y1-1], arr[x2-1][y2-1]]
-            for i in range(height): 
-                arr[x2-1+(i+1)][y1-1] = arr[x2-1+(i)][y1-1]
-                arr[x1-1-(i+1)][y2-1] = arr[x1-1-(i)][y2-1]
-            arr[x2-1][y1-2] = each_edge[0]
-            arr[x1-1][y2-2] = each_edge[1]
-        elif width != 1 and height == 1: # 세로만 붙어 있는 경우 
-            each_edge = [arr[x2-1][y1-2], arr[x1-1][y2-1]]
-            for i in range(width): 
-                arr[x1-1][y1-1+(i+1)] = arr[x1-1][y1-1+(i)]
-                arr[x2-1][y2-1-(i+1)] = arr[x2-1][y2-1-(i)]
-        return arr
-    
-    def get_min(arr, qry): 
-        x1, y1, x2, y2 = qry 
-        a=min(arr[x1-1:x2-1][y1-1])
-        b=min(arr[x2-1][y1-1:y2-1])
-        c=min(arr[x1-1:x2-1][y2-1])
-        d=min(arr[x1-1][y1-1:y2-1])
-        return min(a,b,c,d)
-    
+def solution(rows, cols, queries): 
+    arr = [[i*cols+j+1 for j in range(cols)] for i in range(rows)]
     ans = []
-    for qry in queries : 
-        arr = rotate(arr, qry)
-        ans.append(get_min(arr, qry))
-    
+    local_min = None
+    for qr in queries : 
+        r1, c1, r2, c2 = qr[0]-1, qr[1]-1, qr[2]-1, qr[3]-1 
+        tmp = arr[r1][c2]
+        local_min = tmp
+        # →
+        for c in range(c2, c1, -1): 
+            arr[r1][c] = arr[r1][c-1]
+            local_min = min(local_min, arr[r1][c-1])
+        # ↑
+        for r in range(r1, r2): 
+            arr[r][c1] = arr[r+1][c1]
+            local_min = min(local_min, arr[r+1][c1])
+        # ←
+        for c in range(c1, c2): 
+            arr[r2][c] = arr[r2][c+1]
+            local_min = min(local_min, arr[r2][c+1])
+        # ↓
+        for r in range(r2, r1, -1): 
+            arr[r][c2] = arr[r-1][c2]
+            local_min = min(local_min, arr[r-1][c2])
+        
+        arr[r1+1][c2] = tmp
+                    
+        ans.append(local_min)
     return ans
+
+
+"""
+아 변경되는 순서를 잘못 생각했음 
+- 화살표가 어떤 순서로 바뀌어야 값이 겹쳐지지 않고 업데이트 되는지 고려해야 함 
+- 각각 업데이트 되는 행과 열 안에서도 어떤 순서로 바꿔야 겹치지 않고 업데이트 되는지 고려해야 함. 
+
+- 이렇게 값을 옮기는 문제는 inverse range iteration 이 유용하다! 
+    e.g.
+    for i in range(큰값, 작은값, -1): 
+        i 는 큰값 부터 작은값-1 까지 
+"""
