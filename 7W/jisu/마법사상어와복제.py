@@ -1,79 +1,111 @@
-from itertools import permutations
+import sys
+from copy import deepcopy
+from collections import deque
+
+input = sys.stdin.readline
+dx = [0, -1, -1, -1, 0, 1, 1, 1]
+dy = [-1, -1, 0, 1, 1, 1, 0, -1]
+
+smell = [[0] * 4 for _ in range(4)]  # 물고기 냄새 구역 체크
+fish = [[[] for _ in range(4)] for _ in range(4)]  # 물고기, 상어 위치 표시
+m, s = map(int, input().split())
+
+# 물고기 위치 좌표에 표시
+for _ in range(m):
+    x, y, d = map(int, input().split())
+    fish[x-1][y-1].append(d-1)
+
+# 상어 좌표
+sx, sy = map(int, input().split())
+sx -= 1
+sy -= 1
 
 
-bowl = [[[] for _ in range(4)] for _ in range(4)]  # 어항
-direction = {1: (0, -1), 2: (-1, -1), 3: (-1, 0), 4: (-1, 1), 5:(0, 1), 6: (1, 1), 7: (1, 0), 8: (1, -1)}
-dic_four = {1: (-1, 0), 2: (0, -1), 3: (1, 0), 4: (0, 1)}
+# 상어 이동
+def move_shark(x, y, cnt, del_fish, direction, check):
+    global max_del, move_dir  # 물고기 최대 삭제, 이동 방향
+    if cnt == 3: # 3칸 이동하므로
+        if del_fish > max_del:  # 이전보다 물고기 지운 수 더 많으면
+            move_dir = deepcopy(direction)
+            max_del = del_fish
+        return
+
+    for d in [2, 0, 6, 4]:
+        nx, ny = x + dx[d], y + dy[d]
+        if not 0 <= nx < 4 or not 0 <= ny < 4:
+            continue
+
+        flag = 0
+        if [nx, ny] in check:  # 중복 이동 방지
+            flag = 1
+        if flag == 0:
+            del_fish += len(fish[nx][ny])
+        if fish[nx][ny]:
+            check.append([nx, ny])
+        cnt += 1
+        direction.append(d)
+
+        move_shark(nx, ny, cnt, del_fish, direction, check)
+
+        # 초기화
+        if flag == 0:
+            del_fish -= len(fish[nx][ny])
+        if fish[nx][ny]:
+            check.pop()
+        cnt -= 1
+        direction.pop()
 
 
-M, S = map(int, input().split())
-fir_dic = []  # 물고기 초기 위치 저장
-for m in range(M):
-    r, c, dic = map(int, input().split())
-    bowl[r-1][c-1].append(dic)
-    fir_dic.append((r-1, c-1))
+for k in range(1, s+1):
+    fish_before = deepcopy(fish)  # 경로에 방해주지 않기 위해 복사
+    fish_temp = [[[] for _ in range(4)] for _ in range(4)]  # 물고기 임시 이동
+    for i in range(4):
+        for j in range(4):
+            if fish[i][j]:
+                for d in fish[i][j]:
+                    flag = 0
+                    for _ in range(8):  # 방향별 탐색
+                        nx, ny = i + dx[d], j + dy[d]
+                        if 0 <= nx < 4 and 0 <= ny < 4:
+                            if not (nx == sx and ny == sy):  # 상어 없음
+                                if smell[nx][ny] == 0:  # 물고기 냄새 없음
+                                    fish_temp[nx][ny].append(d)
+                                    flag = 1
+                                    break
+                        d = (d + 7) % 8
+                    if flag == 0:  # 이동할 방향이 어디에도 없으면 원래 자리
+                        fish_temp[i][j].append(d)
+    fish = fish_temp
 
-R, C = map(int, input().split())
-bowl[R-1][C-1].append('F')
+    max_del = -1
+    move_shark(sx, sy, 0, 0, deque(), deque())
 
-print(bowl)
+    x, y = sx, sy
+    for d in move_dir:
+        nx, ny = x + dx[d], y + dy[d]
+        if fish[nx][ny]:  # 상어 이동 자리에 물고기 있으면 없애고 냄새 남김
+            fish[nx][ny] = []
+            smell[nx][ny] = k
+        x, y = nx, ny
+    sx, sy = x, y
 
-def move_fish(bowl, r, c, dic):
-    fir = dic
-    while True:
-        nr = r+direction[dic][0]
-        nc = c+direction[dic][1]
+    # 물고기 냄새 수 조정
+    for i in range(4):
+        for j in range(4):
+            if smell[i][j] > 0:
+                if k - smell[i][j] == 2:  # 현재 횟수 빼기 냄새 흔적 남긴 당시 횟수가 2이면
+                    smell[i][j] = 0
 
-        if 0 <= nr <= 3 and 0 <= nc <= 3 and bowl[nr][nc] != 'F' and bowl[nr][nc] != 'S':
-            bowl[r][c].remove(fir)
-            bowl[nr][nc].append(dic)
-            break
-        else:
-            if dic == 1:
-                dic = 8
-            else:
-                dic -= 1
+    # 복제 완료
+    for i in range(4):
+        for j in range(4):
+            if fish_before[i][j]:
+                for d in fish_before[i][j]:
+                    fish[i][j].append(d)
 
-    print(bowl)
-
+ans = 0
 for i in range(4):
     for j in range(4):
-        if len(bowl[i][j]) > 0:
-            for b in bowl[i][j]:
-                if b != 'F' and b != 'S':
-                    move_fish(bowl, i, j, b)
+        ans += len(fish[i][j])
 
-print(bowl)
-
-# def move_shark(bowl, r, c):
-#     fish_max = 0
-#     dic_value = 0
-#     for per in list(permutations([1, 2, 3, 4], 3)):
-#         flag = True
-#         fish_cnt = 0
-#         for p in per:
-#             nr = r + dic_four[p][0]
-#             nc = c + dic_four[p][1]
-#             if 0 <= nr <= 4 and 0 <= nc <= 4:
-#                 r, c = nr, nc
-#                 if bowl[nr][nc] > 0:
-#                     bowl[nr][nc] = 0  # 물고기 제외
-#                     fish_cnt += 1
-#             else:
-#                 flag = False
-#                 break
-#         if flag:
-#             if fish_max < fish_cnt:
-#                 fish_max = fish_cnt
-
-
-
-"""
-5 2
-4 3 5
-1 3 5
-2 4 2
-2 1 6
-3 4 4
-4 2
-"""
+print(ans)
