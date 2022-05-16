@@ -1,22 +1,24 @@
 def solution(stones, k):
     left, right = 1, max(stones)
     answer = 1
+
     while left <= right:
         mid = (left + right) // 2
-        blank = 0
+        cnt = 0
         flag = True
-        for stone in stones:
-            if stone < mid:
-                blank += 1
-                if blank == k:  # k개의 공백이 생기면 움직일 수 없다.
+        for s in stones:
+            if s < mid:
+                cnt += 1
+                if cnt == k:
                     flag = False
                     break
             else:
-                blank = 0
-        if flag:  # 움직일 수 있는 값
+                cnt = 0
+
+        if flag:
             answer = max(answer, mid)
             left = mid + 1
         else:
             right = mid - 1
-            
+
     return answer
